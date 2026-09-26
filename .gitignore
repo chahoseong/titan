@@ -96,3 +96,7 @@ Thumbs.db
 # Plugin caches
 Plugins/**/Saved/*
 Plugins/**/DerivedDataCache/*
+
+# Content: track only project-owned assets (marketplace packs, Developers, Collections stay local)
+Content/*
+!Content/Titan/
