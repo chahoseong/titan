@@ -73,3 +73,26 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# UE 5.8+ generated solution files
+*.slnx
+
+# JetBrains Rider
+.idea/
+Plugins/Developer/RiderLink/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code (local)
+.claude/settings.local.json
+.mcp.json
+
+# Plugin caches
+Plugins/**/Saved/*
+Plugins/**/DerivedDataCache/*
