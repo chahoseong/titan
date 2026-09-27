@@ -91,7 +91,6 @@ Thumbs.db
 
 # Claude Code (local)
 .claude/settings.local.json
-.mcp.json
 
 # Plugin caches
 Plugins/**/Saved/*
