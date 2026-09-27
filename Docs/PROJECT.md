@@ -103,5 +103,4 @@ Titan 프로젝트의 목적, 방향, 범위를 정의한다.
 
 | 문서 | 내용 |
 |---|---|
-| [AGENTS.md](../AGENTS.md) | 작업 규칙 |
 | [Architecture/Decisions/](Architecture/Decisions/) | 결정 기록 |
