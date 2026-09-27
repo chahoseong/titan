@@ -378,7 +378,7 @@ void UExampleDefinition::GetAssetRegistryTags(FAssetRegistryTagsContext Context)
 
 | 항목 | 이유 |
 |---|---|
-| `FScalableFloat` | GameplayAbilities 플러그인에 들어 있다. GAS는 쓰지 않기로 [결정](../Decisions/)했다. Curve Table이나 `FRuntimeFloatCurve`를 쓴다 |
+| `FScalableFloat` | GameplayAbilities 플러그인에 들어 있다. GAS는 쓰지 않는다. Curve Table이나 `FRuntimeFloatCurve`를 쓴다 |
 | Data Registry | 여러 소스의 구조체 데이터를 ID로 조회하고, 비동기로 얻고, 캐시하는 기능이다. 여러 소스를 합치거나 데이터를 비동기로 얻는 요구가 범위에 없다. 플러그인은 베타 단계다 |
 | HTTP 요청, Web API 플러그인 | 외부 데이터 소스가 범위에 없다 |
 | Asset Metadata | 에셋을 로드해야 읽을 수 있다. 조회용 값은 Asset Registry 태그로 내보낸다 |
