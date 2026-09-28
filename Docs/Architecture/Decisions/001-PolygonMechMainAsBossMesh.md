@@ -1,22 +1,22 @@
-# 001. 보스 메시로 SK_PolygonMech_Main 사용
+# 001. 보스 메시로 SK_PolygonMec_Main 사용
 
 - 상태: 채택
 - 날짜: 2026-09-27
 
 ## 배경
 
-보스 메크 메시의 후보는 PolygonMech 팩의 `SK_Mech_Base`와 `SK_PolygonMech_Main` 두 가지다.
+보스 메크 메시의 후보는 PolygonMech 팩의 `SK_Mech_Base`와 `SK_PolygonMec_Main` 두 가지다.
 보스 메시는 부위별 피격과 파괴를 지원해야 하고, 기존 애니메이션 재생과 절차적 보정을 섞는 방식으로 움직여야 한다.
 
 ## 결정
 
-`SK_PolygonMech_Main`과 전용 스켈레톤 `SKEL_PolygonMech_Main`을 사용한다.
+`SK_PolygonMec_Main`과 전용 스켈레톤 `SKEL_PolygonMec_Main`을 사용한다.
 
 ## 비교
 
-| | `SK_Mech_Base` | `SK_PolygonMech_Main` |
+| | `SK_Mech_Base` | `SK_PolygonMec_Main` |
 |---|---|---|
-| 스켈레톤 | 메크 본을 추가한 `UE4_Mannequin_Skeleton` | 전용 `SKEL_PolygonMech_Main` |
+| 스켈레톤 | 메크 본을 추가한 `UE4_Mannequin_Skeleton` | 전용 `SKEL_PolygonMec_Main` |
 | 애니메이션 | 팩의 UE4 마네킹 애니메이션 10개는 바로 재생 | 리타게팅 필요 |
 | 파츠 | 몸통만 있는 메시. 스켈레탈 파츠를 Leader Pose로 조립 | 전체 메시 + 스켈레탈 파츠(`SK_geo_*`) |
 | 전용 본 | 콕핏 문, 배기구 덮개, 역관절 보조 본 | 동일 + 콕핏 내부 본 |
@@ -32,4 +32,3 @@
 
 - 보스 애니메이션은 IK Retargeter로 리타게팅해 사용한다.
 - 자동 생성된 IK Rig는 다리 체인이 `calf_*`에서 시작한다. 허벅지 본 이름이 `Thight_L/R`(원본 오타)이라 인식되지 않으므로 시작 본을 직접 지정해야 한다.
-- 팩의 원본 이름은 `SK_PolygonMec_Main`, `SKEL_PolygonMec_Main`, `PHYS_PolygonMec_Main`이다. 이 프로젝트에서 `Mech`로 이름을 바꿨으며, 팩을 다시 설치하면 같은 변경이 필요하다.
