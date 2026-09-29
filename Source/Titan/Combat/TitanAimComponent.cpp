@@ -1,12 +1,26 @@
 #include "Combat/TitanAimComponent.h"
 
 #include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "TitanCollisionChannels.h"
+
+static TAutoConsoleVariable<bool> CVarDrawAimPoint(
+	TEXT("Titan.Debug.DrawAimPoint"),
+	false,
+	TEXT("Draw the player's aim point."));
 
 UTitanAimComponent::UTitanAimComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	// Run after the camera manager updates so the aim point uses this frame's view
+	PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
 }
 
 void UTitanAimComponent::BeginPlay()
@@ -36,6 +50,12 @@ void UTitanAimComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	UpdateAimBlend(DeltaTime);
+	UpdateAimPoint();
+}
+
+void UTitanAimComponent::UpdateAimBlend(float DeltaTime)
+{
 	const float TargetAlpha = bIsAiming ? 1.0f : 0.0f;
 	if (AimAlpha == TargetAlpha)
 	{
@@ -48,6 +68,36 @@ void UTitanAimComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		: TargetAlpha;
 
 	ApplyBlend(FMath::SmoothStep(0.0f, 1.0f, AimAlpha));
+}
+
+void UTitanAimComponent::UpdateAimPoint()
+{
+	const APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	const APlayerController* PlayerController = OwnerPawn ? Cast<APlayerController>(OwnerPawn->GetController()) : nullptr;
+	if (!PlayerController || !PlayerController->PlayerCameraManager)
+	{
+		return;
+	}
+
+	// The screen center lies on the forward axis of the final rendered view
+	const FMinimalViewInfo& View = PlayerController->PlayerCameraManager->GetCameraCacheView();
+	const FVector TraceStart = View.Location;
+	const FVector TraceEnd = TraceStart + View.Rotation.Vector() * AimTraceMaxDistance;
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(TitanAimPoint));
+	QueryParams.AddIgnoredActor(OwnerPawn);
+
+	FHitResult Hit;
+	AimPoint = GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TitanTraceChannel_Weapon, QueryParams)
+		? Hit.ImpactPoint
+		: TraceEnd;
+
+#if ENABLE_DRAW_DEBUG
+	if (CVarDrawAimPoint.GetValueOnGameThread())
+	{
+		DrawDebugPoint(GetWorld(), AimPoint, 8.0f, FColor::Red, false, -1.0f, SDPG_Foreground);
+	}
+#endif
 }
 
 void UTitanAimComponent::StartAiming()
