@@ -9,8 +9,8 @@ class UCharacterMovementComponent;
 class USpringArmComponent;
 
 /**
- * Owns the player's aim state and blends movement speed and camera view
- * between the owner's default values and the aim values.
+ * Owns the player's aim state and aim point, and blends movement speed and
+ * camera view between the owner's default values and the aim values.
  */
 UCLASS()
 class TITAN_API UTitanAimComponent : public UActorComponent
@@ -28,7 +28,12 @@ public:
 
 	bool IsAiming() const { return bIsAiming; }
 
+	/** World location under the screen center, updated every frame */
+	FVector GetAimPoint() const { return AimPoint; }
+
 private:
+	void UpdateAimBlend(float DeltaTime);
+	void UpdateAimPoint();
 	void ApplyBlend(float Alpha) const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim", meta = (ClampMin = "0.0", Units = "cm/s"))
@@ -46,8 +51,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Aim", meta = (ClampMin = "0.0", Units = "s"))
 	float AimTransitionTime = 0.2f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Aim", meta = (ClampMin = "0.0", Units = "cm"))
+	float AimTraceMaxDistance = 10000.0f;
+
 	UPROPERTY(VisibleInstanceOnly, Category = "Aim")
 	bool bIsAiming = false;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Aim")
+	FVector AimPoint = FVector::ZeroVector;
 
 	// 0 = default view, 1 = aim view
 	float AimAlpha = 0.0f;
