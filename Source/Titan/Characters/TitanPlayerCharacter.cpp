@@ -1,6 +1,7 @@
 #include "Characters/TitanPlayerCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Combat/TitanAimComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -29,6 +30,8 @@ ATitanPlayerCharacter::ATitanPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->SetFieldOfView(90.0f);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	AimComponent = CreateDefaultSubobject<UTitanAimComponent>(TEXT("AimComponent"));
 }
 
 void ATitanPlayerCharacter::NotifyControllerChanged()
@@ -54,6 +57,8 @@ void ATitanPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
 	EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+	EnhancedInput->BindAction(AimAction, ETriggerEvent::Started, this, &ThisClass::Input_AimStarted);
+	EnhancedInput->BindAction(AimAction, ETriggerEvent::Completed, this, &ThisClass::Input_AimCompleted);
 }
 
 void ATitanPlayerCharacter::Input_Move(const FInputActionValue& Value)
@@ -75,4 +80,14 @@ void ATitanPlayerCharacter::Input_Look(const FInputActionValue& Value)
 
 	AddControllerYawInput(Input.X);
 	AddControllerPitchInput(Input.Y);
+}
+
+void ATitanPlayerCharacter::Input_AimStarted()
+{
+	AimComponent->StartAiming();
+}
+
+void ATitanPlayerCharacter::Input_AimCompleted()
+{
+	AimComponent->StopAiming();
 }
