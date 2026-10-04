@@ -11,6 +11,9 @@ class TITAN_API ATitanHUD : public AHUD
 {
 	GENERATED_BODY()
 
+public:
+	virtual void DrawHUD() override;
+
 protected:
 	virtual void BeginPlay() override;
 

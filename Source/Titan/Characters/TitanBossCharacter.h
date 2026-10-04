@@ -6,6 +6,7 @@
 #include "TitanBossCharacter.generated.h"
 
 class UTitanBodyPartSet;
+class UTitanHealthComponent;
 
 UCLASS(Abstract)
 class TITAN_API ATitanBossCharacter : public ATitanCharacter
@@ -20,7 +21,12 @@ public:
 
 	const UTitanBodyPartSet* GetBodyPartSet() const { return BodyPartSet; }
 
+	UTitanHealthComponent* GetHealthComponent() const { return HealthComponent; }
+
 private:
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	TObjectPtr<UTitanHealthComponent> HealthComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Body Part")
 	TObjectPtr<UTitanBodyPartSet> BodyPartSet;
 };

@@ -2,6 +2,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Combat/TitanAimComponent.h"
+#include "Combat/TitanWeaponComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -32,6 +33,7 @@ ATitanPlayerCharacter::ATitanPlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	AimComponent = CreateDefaultSubobject<UTitanAimComponent>(TEXT("AimComponent"));
+	WeaponComponent = CreateDefaultSubobject<UTitanWeaponComponent>(TEXT("WeaponComponent"));
 }
 
 void ATitanPlayerCharacter::NotifyControllerChanged()
@@ -59,6 +61,9 @@ void ATitanPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
 	EnhancedInput->BindAction(AimAction, ETriggerEvent::Started, this, &ThisClass::Input_AimStarted);
 	EnhancedInput->BindAction(AimAction, ETriggerEvent::Completed, this, &ThisClass::Input_AimCompleted);
+
+	// Triggered runs every frame while the button is held; the weapon limits the rate of fire
+	EnhancedInput->BindAction(FireAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Fire);
 }
 
 void ATitanPlayerCharacter::Input_Move(const FInputActionValue& Value)
@@ -90,4 +95,9 @@ void ATitanPlayerCharacter::Input_AimStarted()
 void ATitanPlayerCharacter::Input_AimCompleted()
 {
 	AimComponent->StopAiming();
+}
+
+void ATitanPlayerCharacter::Input_Fire()
+{
+	WeaponComponent->Fire(AimComponent->GetAimPoint());
 }
