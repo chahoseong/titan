@@ -10,7 +10,7 @@ public class Titan : ModuleRules
 
 		PublicIncludePaths.Add(ModuleDirectory);
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayTags" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "UMG" });
 
