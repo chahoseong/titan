@@ -9,6 +9,8 @@
 
 프로젝트 목표, 범위 등 프로젝트에 대한 자세한 내용은 [PROJECT.md](Docs/PROJECT.md) 문서를 참고한다.
 
+문서, 이슈, 코드에서 쓰는 용어는 [GLOSSARY.md](Docs/GLOSSARY.md) 문서를 따른다.
+
 ## Commands
 
 프로젝트 루트에서 PowerShell로 실행한다. 아래 명령어를 실행하기 전에 다음 변수들을 정의한다.
