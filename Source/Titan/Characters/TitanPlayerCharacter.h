@@ -9,6 +9,7 @@ class UInputAction;
 class UInputMappingContext;
 class USpringArmComponent;
 class UTitanAimComponent;
+class UTitanWeaponComponent;
 struct FInputActionValue;
 
 UCLASS(Abstract)
@@ -29,6 +30,7 @@ private:
 	void Input_Look(const FInputActionValue& Value);
 	void Input_AimStarted();
 	void Input_AimCompleted();
+	void Input_Fire();
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	TObjectPtr<USpringArmComponent> CameraBoom;
@@ -38,6 +40,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Aim")
 	TObjectPtr<UTitanAimComponent> AimComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	TObjectPtr<UTitanWeaponComponent> WeaponComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
@@ -50,4 +55,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> AimAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> FireAction;
 };

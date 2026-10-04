@@ -1,6 +1,7 @@
 #include "Characters/TitanBossCharacter.h"
 
 #include "Combat/TitanBodyPartSet.h"
+#include "Combat/TitanHealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/HitResult.h"
@@ -14,6 +15,8 @@ ATitanBossCharacter::ATitanBossCharacter()
 
 	// Keep the physics bodies on the bones even while the mesh is not rendered
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	HealthComponent = CreateDefaultSubobject<UTitanHealthComponent>(TEXT("HealthComponent"));
 }
 
 FGameplayTag ATitanBossCharacter::GetHitLocation(const FHitResult& Hit) const
