@@ -1,6 +1,6 @@
 #include "Combat/TitanWeaponComponent.h"
 
-#include "Combat/TitanHealthComponent.h"
+#include "Combat/TitanDamageable.h"
 #include "Engine/HitResult.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -39,12 +39,10 @@ void UTitanWeaponComponent::Fire(const FVector& TargetPoint)
 		return;
 	}
 
-	if (const AActor* HitActor = Hit.GetActor())
+	// The hit actor decides how the damage is applied
+	if (ITitanDamageable* Target = Cast<ITitanDamageable>(Hit.GetActor()))
 	{
-		if (UTitanHealthComponent* Health = HitActor->FindComponentByClass<UTitanHealthComponent>())
-		{
-			Health->ApplyDamage(Damage);
-		}
+		Target->ReceiveDamage(Damage, Hit);
 	}
 }
 

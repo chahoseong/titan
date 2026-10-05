@@ -4,17 +4,12 @@
 #include "Misc/DataValidation.h"
 #endif
 
-FGameplayTag UTitanBodyPartSet::FindBodyPart(FName BoneName) const
+const FTitanBodyPartEntry* UTitanBodyPartSet::FindBodyPart(FName BoneName) const
 {
-	for (const FTitanBodyPartEntry& Entry : BodyParts)
+	return BodyParts.FindByPredicate([BoneName](const FTitanBodyPartEntry& Entry)
 	{
-		if (Entry.Bones.Contains(BoneName))
-		{
-			return Entry.BodyPart;
-		}
-	}
-
-	return FGameplayTag();
+		return Entry.Bones.Contains(BoneName);
+	});
 }
 
 #if WITH_EDITOR

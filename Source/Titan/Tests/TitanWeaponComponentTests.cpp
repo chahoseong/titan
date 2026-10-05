@@ -1,12 +1,12 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
-#include "Combat/TitanHealthComponent.h"
 #include "Combat/TitanWeaponComponent.h"
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationCommon.h"
+#include "Tests/TitanTestDamageableActor.h"
 
 namespace TitanWeaponComponentTests
 {
@@ -41,11 +41,12 @@ namespace TitanWeaponComponentTests
 		}
 
 		/** Spawns an actor that blocks shots, with its near side at Distance ahead of the shooter */
-		AActor* SpawnObstacle(float Distance) const
+		template <typename ActorType>
+		ActorType* SpawnBlockingActor(float Distance) const
 		{
 			const float HalfDepth = 50.0f;
 
-			AActor* Actor = World->SpawnActor<AActor>();
+			ActorType* Actor = World->SpawnActor<ActorType>();
 			UBoxComponent* Box = NewObject<UBoxComponent>(Actor);
 			Box->SetBoxExtent(FVector(HalfDepth, 200.0f, 200.0f));
 			Box->SetCollisionProfileName(TEXT("BlockAll"));
@@ -56,13 +57,16 @@ namespace TitanWeaponComponentTests
 			return Actor;
 		}
 
-		/** Spawns an obstacle that also has health */
-		UTitanHealthComponent* SpawnTarget(float Distance) const
+		/** Spawns an actor that blocks shots and cannot be damaged */
+		AActor* SpawnObstacle(float Distance) const
 		{
-			UTitanHealthComponent* Health = NewObject<UTitanHealthComponent>(SpawnObstacle(Distance));
-			Health->RegisterComponent();
+			return SpawnBlockingActor<AActor>(Distance);
+		}
 
-			return Health;
+		/** Spawns an actor that blocks shots and records the damage it receives */
+		ATitanTestDamageableActor* SpawnTarget(float Distance) const
+		{
+			return SpawnBlockingActor<ATitanTestDamageableActor>(Distance);
 		}
 
 		FTestWorldWrapper WorldWrapper;
@@ -71,10 +75,10 @@ namespace TitanWeaponComponentTests
 	};
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponTargetWithinRangeTakesDamageTest, "Titan.Weapon.TargetWithinRangeTakesDamage",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponTargetWithinRangeReceivesDamageTest, "Titan.Weapon.TargetWithinRangeReceivesDamage",
 	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
-bool FTitanWeaponTargetWithinRangeTakesDamageTest::RunTest(const FString& Parameters)
+bool FTitanWeaponTargetWithinRangeReceivesDamageTest::RunTest(const FString& Parameters)
 {
 	TitanWeaponComponentTests::FFixture Fixture(*this);
 	UTitanWeaponComponent* Weapon = Fixture.Weapon;
@@ -84,18 +88,18 @@ bool FTitanWeaponTargetWithinRangeTakesDamageTest::RunTest(const FString& Parame
 	}
 
 	const float Distance = Weapon->GetRange() * 0.5f;
-	const UTitanHealthComponent* Target = Fixture.SpawnTarget(Distance);
+	const ATitanTestDamageableActor* Target = Fixture.SpawnTarget(Distance);
 
 	Weapon->Fire(Fixture.PointAhead(Distance));
-	TestEqual(TEXT("Target loses the weapon's damage"), Target->GetHealth(), Target->GetMaxHealth() - Weapon->GetDamage());
+	TestEqual(TEXT("Target receives the weapon's damage"), Target->ReceivedDamage, Weapon->GetDamage());
 
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponTargetBeyondRangeTakesNoDamageTest, "Titan.Weapon.TargetBeyondRangeTakesNoDamage",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponTargetBeyondRangeReceivesNoDamageTest, "Titan.Weapon.TargetBeyondRangeReceivesNoDamage",
 	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
-bool FTitanWeaponTargetBeyondRangeTakesNoDamageTest::RunTest(const FString& Parameters)
+bool FTitanWeaponTargetBeyondRangeReceivesNoDamageTest::RunTest(const FString& Parameters)
 {
 	TitanWeaponComponentTests::FFixture Fixture(*this);
 	UTitanWeaponComponent* Weapon = Fixture.Weapon;
@@ -106,18 +110,18 @@ bool FTitanWeaponTargetBeyondRangeTakesNoDamageTest::RunTest(const FString& Para
 
 	// The range is measured from the muzzle, which is at most a few steps from the shooter
 	const float Distance = Weapon->GetRange() + 200.0f;
-	const UTitanHealthComponent* Target = Fixture.SpawnTarget(Distance);
+	const ATitanTestDamageableActor* Target = Fixture.SpawnTarget(Distance);
 
 	Weapon->Fire(Fixture.PointAhead(Distance));
-	TestEqual(TEXT("Target beyond the range keeps its health"), Target->GetHealth(), Target->GetMaxHealth());
+	TestEqual(TEXT("Target beyond the range receives no damage"), Target->ReceivedDamage, 0.0f);
 
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponTargetBehindObstacleTakesNoDamageTest, "Titan.Weapon.TargetBehindObstacleTakesNoDamage",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponTargetBehindObstacleReceivesNoDamageTest, "Titan.Weapon.TargetBehindObstacleReceivesNoDamage",
 	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
-bool FTitanWeaponTargetBehindObstacleTakesNoDamageTest::RunTest(const FString& Parameters)
+bool FTitanWeaponTargetBehindObstacleReceivesNoDamageTest::RunTest(const FString& Parameters)
 {
 	TitanWeaponComponentTests::FFixture Fixture(*this);
 	UTitanWeaponComponent* Weapon = Fixture.Weapon;
@@ -128,18 +132,18 @@ bool FTitanWeaponTargetBehindObstacleTakesNoDamageTest::RunTest(const FString& P
 
 	const float Distance = Weapon->GetRange() * 0.5f;
 	Fixture.SpawnObstacle(Distance * 0.5f);
-	const UTitanHealthComponent* Target = Fixture.SpawnTarget(Distance);
+	const ATitanTestDamageableActor* Target = Fixture.SpawnTarget(Distance);
 
 	Weapon->Fire(Fixture.PointAhead(Distance));
-	TestEqual(TEXT("Target behind an obstacle keeps its health"), Target->GetHealth(), Target->GetMaxHealth());
+	TestEqual(TEXT("Target behind an obstacle receives no damage"), Target->ReceivedDamage, 0.0f);
 
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponOnlyFirstTargetHitTakesDamageTest, "Titan.Weapon.OnlyFirstTargetHitTakesDamage",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitanWeaponOnlyFirstTargetHitReceivesDamageTest, "Titan.Weapon.OnlyFirstTargetHitReceivesDamage",
 	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
-bool FTitanWeaponOnlyFirstTargetHitTakesDamageTest::RunTest(const FString& Parameters)
+bool FTitanWeaponOnlyFirstTargetHitReceivesDamageTest::RunTest(const FString& Parameters)
 {
 	TitanWeaponComponentTests::FFixture Fixture(*this);
 	UTitanWeaponComponent* Weapon = Fixture.Weapon;
@@ -149,12 +153,12 @@ bool FTitanWeaponOnlyFirstTargetHitTakesDamageTest::RunTest(const FString& Param
 	}
 
 	const float Distance = Weapon->GetRange() * 0.5f;
-	const UTitanHealthComponent* FrontTarget = Fixture.SpawnTarget(Distance * 0.5f);
-	const UTitanHealthComponent* BackTarget = Fixture.SpawnTarget(Distance);
+	const ATitanTestDamageableActor* FrontTarget = Fixture.SpawnTarget(Distance * 0.5f);
+	const ATitanTestDamageableActor* BackTarget = Fixture.SpawnTarget(Distance);
 
 	Weapon->Fire(Fixture.PointAhead(Distance));
-	TestEqual(TEXT("Front target loses the weapon's damage"), FrontTarget->GetHealth(), FrontTarget->GetMaxHealth() - Weapon->GetDamage());
-	TestEqual(TEXT("Back target keeps its health"), BackTarget->GetHealth(), BackTarget->GetMaxHealth());
+	TestEqual(TEXT("Front target receives the weapon's damage"), FrontTarget->ReceivedDamage, Weapon->GetDamage());
+	TestEqual(TEXT("Back target receives no damage"), BackTarget->ReceivedDamage, 0.0f);
 
 	return true;
 }
@@ -173,21 +177,20 @@ bool FTitanWeaponFiresAgainOnlyAfterFireIntervalTest::RunTest(const FString& Par
 
 	const float Distance = Weapon->GetRange() * 0.5f;
 	const FVector TargetPoint = Fixture.PointAhead(Distance);
-	const UTitanHealthComponent* Target = Fixture.SpawnTarget(Distance);
-	const float MaxHealth = Target->GetMaxHealth();
+	const ATitanTestDamageableActor* Target = Fixture.SpawnTarget(Distance);
 	const float Damage = Weapon->GetDamage();
 
 	Weapon->Fire(TargetPoint);
 	Weapon->Fire(TargetPoint);
-	TestEqual(TEXT("A second shot at the same moment does not fire"), Target->GetHealth(), MaxHealth - Damage);
+	TestEqual(TEXT("A second shot at the same moment does not fire"), Target->ReceivedDamage, Damage);
 
 	Fixture.WorldWrapper.TickTestWorld(Weapon->GetFireInterval() * 0.5f);
 	Weapon->Fire(TargetPoint);
-	TestEqual(TEXT("A shot before the fire interval has passed does not fire"), Target->GetHealth(), MaxHealth - Damage);
+	TestEqual(TEXT("A shot before the fire interval has passed does not fire"), Target->ReceivedDamage, Damage);
 
 	Fixture.WorldWrapper.TickTestWorld(Weapon->GetFireInterval());
 	Weapon->Fire(TargetPoint);
-	TestEqual(TEXT("A shot after the fire interval has passed fires"), Target->GetHealth(), MaxHealth - Damage * 2.0f);
+	TestEqual(TEXT("A shot after the fire interval has passed fires"), Target->ReceivedDamage, Damage * 2.0f);
 
 	return true;
 }
