@@ -6,7 +6,7 @@
 
 /**
  * Fires shots from the owning actor toward a target point. A shot is a trace that
- * damages the first actor it hits, if that actor has a health component.
+ * delivers the weapon's damage to the first actor it hits, if that actor is damageable.
  */
 UCLASS()
 class TITAN_API UTitanWeaponComponent : public UActorComponent

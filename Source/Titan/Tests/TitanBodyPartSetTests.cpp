@@ -20,16 +20,20 @@ bool FTitanBodyPartSetFindTest::RunTest(const FString& Parameters)
 	LeftArm.BodyPart = TitanGameplayTags::BodyPart_Arm_Left;
 	LeftArm.Bones = { TEXT("lowerarm_l") };
 
+	const FTitanBodyPartEntry* FoundByHead = BodyPartSet->FindBodyPart(TEXT("head"));
+	const FTitanBodyPartEntry* FoundByNeck = BodyPartSet->FindBodyPart(TEXT("neck_01"));
+	const FTitanBodyPartEntry* FoundByLowerArm = BodyPartSet->FindBodyPart(TEXT("lowerarm_l"));
+
 	TestTrue(TEXT("A listed bone resolves to its body part"),
-		BodyPartSet->FindBodyPart(TEXT("head")) == TitanGameplayTags::BodyPart_Head);
+		FoundByHead && FoundByHead->BodyPart == TitanGameplayTags::BodyPart_Head);
 	TestTrue(TEXT("Every bone of an entry resolves to the same body part"),
-		BodyPartSet->FindBodyPart(TEXT("neck_01")) == TitanGameplayTags::BodyPart_Head);
+		FoundByNeck && FoundByNeck->BodyPart == TitanGameplayTags::BodyPart_Head);
 	TestTrue(TEXT("Bones of different entries resolve to different body parts"),
-		BodyPartSet->FindBodyPart(TEXT("lowerarm_l")) == TitanGameplayTags::BodyPart_Arm_Left);
-	TestFalse(TEXT("A bone no entry lists resolves to an empty tag"),
-		BodyPartSet->FindBodyPart(TEXT("calf_l")).IsValid());
-	TestFalse(TEXT("No bone resolves to an empty tag"),
-		BodyPartSet->FindBodyPart(NAME_None).IsValid());
+		FoundByLowerArm && FoundByLowerArm->BodyPart == TitanGameplayTags::BodyPart_Arm_Left);
+	TestTrue(TEXT("A bone no entry lists resolves to no body part"),
+		BodyPartSet->FindBodyPart(TEXT("calf_l")) == nullptr);
+	TestTrue(TEXT("No bone resolves to no body part"),
+		BodyPartSet->FindBodyPart(NAME_None) == nullptr);
 
 	return true;
 }

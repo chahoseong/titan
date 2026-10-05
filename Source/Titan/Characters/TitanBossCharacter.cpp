@@ -1,10 +1,9 @@
 #include "Characters/TitanBossCharacter.h"
 
-#include "Combat/TitanBodyPartSet.h"
+#include "Combat/TitanBodyPartComponent.h"
 #include "Combat/TitanHealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Engine/HitResult.h"
 #include "TitanCollisionChannels.h"
 
 ATitanBossCharacter::ATitanBossCharacter()
@@ -17,14 +16,10 @@ ATitanBossCharacter::ATitanBossCharacter()
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	HealthComponent = CreateDefaultSubobject<UTitanHealthComponent>(TEXT("HealthComponent"));
+	BodyPartComponent = CreateDefaultSubobject<UTitanBodyPartComponent>(TEXT("BodyPartComponent"));
 }
 
-FGameplayTag ATitanBossCharacter::GetHitLocation(const FHitResult& Hit) const
+void ATitanBossCharacter::ReceiveDamage(float Damage, const FHitResult& Hit)
 {
-	if (!BodyPartSet || Hit.GetComponent() != GetMesh())
-	{
-		return FGameplayTag();
-	}
-
-	return BodyPartSet->FindBodyPart(Hit.BoneName);
+	BodyPartComponent->ApplyDamage(*HealthComponent, Damage, Hit);
 }

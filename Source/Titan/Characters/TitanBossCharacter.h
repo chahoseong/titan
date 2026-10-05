@@ -2,31 +2,29 @@
 
 #include "CoreMinimal.h"
 #include "Characters/TitanCharacter.h"
-#include "GameplayTagContainer.h"
+#include "Combat/TitanDamageable.h"
 #include "TitanBossCharacter.generated.h"
 
-class UTitanBodyPartSet;
+class UTitanBodyPartComponent;
 class UTitanHealthComponent;
 
 UCLASS(Abstract)
-class TITAN_API ATitanBossCharacter : public ATitanCharacter
+class TITAN_API ATitanBossCharacter : public ATitanCharacter, public ITitanDamageable
 {
 	GENERATED_BODY()
 
 public:
 	ATitanBossCharacter();
 
-	/** Body part that the hit landed on, or an empty tag if the hit is not on one of this boss's body parts */
-	FGameplayTag GetHitLocation(const FHitResult& Hit) const;
-
-	const UTitanBodyPartSet* GetBodyPartSet() const { return BodyPartSet; }
+	virtual void ReceiveDamage(float Damage, const FHitResult& Hit) override;
 
 	UTitanHealthComponent* GetHealthComponent() const { return HealthComponent; }
+	UTitanBodyPartComponent* GetBodyPartComponent() const { return BodyPartComponent; }
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	TObjectPtr<UTitanHealthComponent> HealthComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Body Part")
-	TObjectPtr<UTitanBodyPartSet> BodyPartSet;
+	UPROPERTY(VisibleAnywhere, Category = "Body Part")
+	TObjectPtr<UTitanBodyPartComponent> BodyPartComponent;
 };

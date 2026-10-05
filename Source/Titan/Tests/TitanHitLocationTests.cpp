@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Characters/TitanBossCharacter.h"
+#include "Combat/TitanBodyPartComponent.h"
 #include "Combat/TitanBodyPartSet.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
@@ -50,7 +51,7 @@ bool FTitanHitLocationCoverageTest::RunTest(const FString& Parameters)
 	}
 
 	const ATitanBossCharacter* Boss = BossClass->GetDefaultObject<ATitanBossCharacter>();
-	const UTitanBodyPartSet* BodyPartSet = Boss->GetBodyPartSet();
+	const UTitanBodyPartSet* BodyPartSet = Boss->GetBodyPartComponent()->GetBodyPartSet();
 	const UPhysicsAsset* PhysicsAsset = Boss->GetMesh()->GetPhysicsAsset();
 	if (!TestNotNull(TEXT("Boss has a body part set"), BodyPartSet) || !TestNotNull(TEXT("Boss mesh has a physics asset"), PhysicsAsset))
 	{
@@ -164,7 +165,7 @@ bool FTitanHitLocationTraceTest::RunTest(const FString& Parameters)
 		{
 			FHitResult Hit;
 			const bool bHit = World->LineTraceSingleByChannel(Hit, BodyCenter + Direction.Vector * TraceDistance, BodyCenter, TitanTraceChannel_Weapon);
-			const FGameplayTag HitLocation = bHit ? Boss->GetHitLocation(Hit) : FGameplayTag();
+			const FGameplayTag HitLocation = bHit ? Boss->GetBodyPartComponent()->GetHitLocation(Hit) : FGameplayTag();
 
 			if (HitLocation != Target.BodyPart)
 			{
